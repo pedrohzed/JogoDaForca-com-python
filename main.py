@@ -1,17 +1,18 @@
+from pathlib import Path
 from random import choice
 import sys
 
-FILENAME = "palavras.txt"
+FILENAME = Path(__file__).parent / "palavras.txt"
 
 try:
-    with open(FILENAME, encoding="utf-8") as texto:
+    with FILENAME.open(encoding="utf-8") as texto:
         palavras = [linha.strip().lower() for linha in texto if linha.strip()]
 except FileNotFoundError:
-    print(f"Erro: arquivo '{FILENAME}' não encontrado.")
+    print(f"Erro: arquivo de palavras esperado não foi encontrado: {FILENAME.name}")
     sys.exit(1)
 
 if not palavras:
-    print(f"Erro: arquivo '{FILENAME}' está vazio.")
+    print(f"Erro: arquivo de palavras '{FILENAME.name}' está vazio.")
     sys.exit(1)
 
 palavra = choice(palavras)
@@ -20,13 +21,18 @@ tentativas = 6
 exibicao = ["_"] * len(palavra)
 letras_tentadas = []
 
-while tentativas > 0 and "_" in exibicao:
+
+def exibir_estado():
     print("\nPalavra:", " ".join(exibicao))
     print(f"Tentativas restantes: {tentativas}")
     if letras_tentadas:
         print("Letras tentadas:", " ".join(letras_tentadas))
     else:
         print("Letras tentadas: (nenhuma)")
+
+
+while tentativas > 0 and "_" in exibicao:
+    exibir_estado()
 
     try:
         chute = input("Chute uma letra: ").lower().strip()
@@ -53,9 +59,9 @@ while tentativas > 0 and "_" in exibicao:
         tentativas -= 1
         print(f"Errou! A letra '{chute}' não está na palavra.")
 
+    exibir_estado()
+
 if "_" not in exibicao:
-    print("\nVocê ganhou!")
-    print("Palavra completa:", palavra)
+    print(f"\nVocê ganhou! A palavra completa é: {palavra}")
 else:
-    print("\nVocê perdeu!")
-    print("A palavra era:", palavra)
+    print(f"\nVocê perdeu! A palavra era: {palavra}")
