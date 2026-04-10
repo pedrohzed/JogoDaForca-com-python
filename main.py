@@ -1,35 +1,61 @@
-from random import randint
+from random import choice
+import sys
+
+FILENAME = "palavras.txt"
+
+try:
+    with open(FILENAME, encoding="utf-8") as texto:
+        palavras = [linha.strip().lower() for linha in texto if linha.strip()]
+except FileNotFoundError:
+    print(f"Erro: arquivo '{FILENAME}' não encontrado.")
+    sys.exit(1)
+
+if not palavras:
+    print(f"Erro: arquivo '{FILENAME}' está vazio.")
+    sys.exit(1)
+
+palavra = choice(palavras)
 
 tentativas = 6
-linha = randint(0, 4)
-with open("palavras.txt") as texto:
-    for _ in range(linha):
-        texto.readline()
-    palavra = texto.readline().strip().lower()  # Palavra secreta em minúsculas
-
-# Inicializa a exibição com underscores
 exibicao = ["_"] * len(palavra)
-
-print("Palavra:", " ".join(exibicao))
-print(f"Tentativas restantes: {tentativas}")
+letras_tentadas = []
 
 while tentativas > 0 and "_" in exibicao:
-    chute = input("Chute uma letra: ").lower()
+    print("\nPalavra:", " ".join(exibicao))
+    print(f"Tentativas restantes: {tentativas}")
+    if letras_tentadas:
+        print("Letras tentadas:", " ".join(letras_tentadas))
+    else:
+        print("Letras tentadas: (nenhuma)")
+
+    try:
+        chute = input("Chute uma letra: ").lower().strip()
+    except EOFError:
+        print("\nEntrada finalizada. Encerrando o jogo.")
+        break
+
     if len(chute) != 1 or not chute.isalpha():
-        print("inválido. Digite uma letra.")
+        print("Entrada inválida. Digite apenas uma letra.")
         continue
-    
+
+    if chute in letras_tentadas:
+        print("Você já tentou essa letra. Tente outra.")
+        continue
+
+    letras_tentadas.append(chute)
+
     if chute in palavra:
-        for i in range(len(palavra)):
-            if palavra[i] == chute:
-                exibicao[i] = chute
-        print("Acertou!", " ".join(exibicao))
+        for indice, letra in enumerate(palavra):
+            if letra == chute:
+                exibicao[indice] = chute
+        print(f"Acertou! A letra '{chute}' está na palavra.")
     else:
         tentativas -= 1
-        print("Errou!", " ".join(exibicao))
-        print(f"Tentativas restantes: {tentativas}")
+        print(f"Errou! A letra '{chute}' não está na palavra.")
 
 if "_" not in exibicao:
-    print("Você ganhou!")
+    print("\nVocê ganhou!")
+    print("Palavra completa:", palavra)
 else:
-    print(f"Você perdeu! A palavra era: {palavra}")
+    print("\nVocê perdeu!")
+    print("A palavra era:", palavra)
